@@ -1,29 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+let snow = [];
+let gravity;
 
-	<title>snow</title>
+let zOff = 0;
 
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.sound.js"></script>
-	<script type="text/javascript" src="sketch.js"></script>
-	<script type="text/javascript" src="snowflake.js"></script>
 
-	<style>
-		body {
-			margin:0;
-			padding:0;
-			overflow: hidden;
-		}
-		canvas {
-			margin:auto;
-		}
-	</style>
-</head>
-<body>
-</body>
-</html>
+let spritesheet;
+let textures = [];
+
+function preload() {
+  spritesheet = loadImage('flakes32.png');
+}
+
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  gravity = createVector(0, 0.3);
+  for (let x = 0; x < spritesheet.width; x += 32) {
+    for (let y = 0; y < spritesheet.height; y += 32) {
+      let img = spritesheet.get(x, y, 32, 32);
+      image(img, x, y);
+      textures.push(img);
+    }
+  }
+
+
+  for (let i = 0; i < 400; i++) {
+    let x = random(width);
+    let y = random(height);
+    let design = random(textures);
+    snow.push(new Snowflake(x, y, design));
+  }
+
+
+
+
+
+}
+
+function draw() {
+  background(0);
+  //snow.push(new Snowflake());
+
+  zOff += 0.1;
+
+  for (flake of snow) {
+    let xOff = flake.pos.x / width;
+    let yOff = flake.pos.y / height;
+    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    let wind = p5.Vector.fromAngle(wAngle);
+    wind.mult(0.1);
+
+    flake.applyForce(gravity);
+    flake.applyForce(wind);
+    flake.update();
+    flake.render();
+  }
+
+  // for (let i = snow.length - 1; i >= 0; i--) {
+  //   if (snow[i].offScreen()) {
+  //     snow.splice(i, 1);
+  //   }
+  // }
+
+}
